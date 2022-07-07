@@ -729,10 +729,11 @@ order by grade desc;
 -- zatrudnienia pracowników ostatnio zatrudnionych. Wynikowe rekordy uporządkuj
 -- malejąco według dat zatrudnienia.
 
-select d.dname, d.loc, e.ename, e.hiredate
+select d.deptno, d.dname, d.loc, e.ename, e.hiredate
 from dept d
          join emp e on d.deptno = e.deptno
-where e.hiredate in (select max(hiredate) from emp where e.deptno = d.deptno group by deptno);
+where e.hiredate in (select max(hiredate) from emp where emp.deptno = d.deptno group by deptno)
+order by e.hiredate desc;
 
 -- 10 Podaj nazwisko, pensję i nazwę departamentu pracowników, których płaca przekracza
 -- średnią ich grup zarobkowych.
