@@ -1,3 +1,5 @@
+-- Nr. indeksu s26524
+
 --================================================ cz.1
 
 -- 1 Wybierz numery departamentów, nazwiska pracowników oraz numery pracownicze
