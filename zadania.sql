@@ -1,4 +1,4 @@
----------------------- cz.1
+--================================================ cz.1
 
 -- 1 Wybierz numery departamentów, nazwiska pracowników oraz numery pracownicze
 -- ich szefów z tabeli EMP.
@@ -88,7 +88,7 @@ select *
 from emp
 order by deptno, sal desc;
 
----------------------- cz.2
+--================================================ cz.2
 
 -- 1 Wypisz nazwiska, numery pracowników, stanowiska pracy, płacę i numery
 -- departamentów wszystkich zatrudnionych na stanowisku CLERK
@@ -296,7 +296,7 @@ where job = 'SALESMAN'
   and sal > comm
 order by sal desc, ename;
 
----------------------- cz.3
+--================================================ cz.3
 
 -- 1 Wypisz wszystkie dane z tabel EMP i DEPT, nie realizując ich złączenia.
 
@@ -426,7 +426,7 @@ select job
 from emp
 where deptno = 30;
 
----------------------- cz.4
+--================================================ cz.4
 
 -- 1 Oblicz średni zarobek w firmie, nazywając wynikową kolumnę Średnia płaca.
 
@@ -558,7 +558,7 @@ from emp e
          join salgrade s on sal between s.losal and s.hisal
 where s.grade = 1;
 
----------------------- cz.5
+--================================================ cz.5
 
 -- 1 Znajdź nazwiska i pensje pracowników, których pensja jest równa minimalnej pensji w firmie.
 
@@ -661,6 +661,89 @@ where dname in (select dname
                          join emp e on e.deptno = e.deptno
                 where job = 'CLERK');
 
----------------------- cz.6
+--================================================ cz.6
 
--- 1
+-- 1 Znajdź nazwisko, płacę i numer departamentu pracowników, którzy zarabiają najwięcej
+-- w swoich departamentach.
+
+select ename, sal, deptno
+from emp e
+where sal in (select max(sal) from emp where e.deptno = emp.deptno group by deptno);
+
+-- 2 Znajdź nazwisko, płacę i numer departamentu pracowników, którzy zarabiają powyżej
+-- średniej w ich departamentach.
+
+select ename, sal, deptno
+from emp e
+where sal > all (select avg(sal) from emp where e.deptno = emp.deptno);
+
+-- 3 Znajdź nazwisko, płacę i stanowisko pracowników o najniższych zarobkach wśród
+-- pracowników na poszczególnych stanowiskach.
+
+select ename, sal, job
+from emp e
+where sal in (select min(sal) from emp where e.job = emp.job);
+
+-- 4 Znajdź za pomocą predykatu EXISTS nazwiska pracowników, którzy posiadają
+-- podwładnych.
+
+select ename
+from emp e
+where exists(select * from emp where emp.mgr = e.empno);
+
+-- 5 Znajdź nazwiska pracowników, których departament nie występuje w tabeli DEPT
+
+select ename
+from emp e
+where not exists(select * from dept where dept.deptno = e.deptno);
+
+-- 6 Stosując podzapytanie, znajdź nazwy i lokalizację departamentów, które nie zatrudniają
+-- żadnych pracowników.
+
+select d.dname, d.loc
+from dept d
+where not exists(select * from emp where emp.deptno = d.deptno);
+
+-- 7 Znajdź nazwiska, płace i stanowiska pracowników zarabiających maksymalną pensję
+-- na ich stanowiskach pracy. Wynikowe rekordy uporządkuj według malejących
+-- zarobków.
+
+select ename, sal, job
+from emp e
+where sal = (select max(sal) from emp where e.job = emp.job)
+order by sal desc;
+
+-- 8 Znajdź nazwiska, płace i grupy zarobkowe pracowników zarabiających minimalną
+-- pensję w ich grupach zarobkowych. Wynikowe rekordy uporządkuj według malejących
+-- grup zarobkowych.
+
+select ename, sal, grade
+from emp e
+         join salgrade s on e.sal between s.losal and s.hisal
+where sal = (select min(sal) from emp where emp.sal between s.losal and s.hisal)
+order by grade desc;
+
+-- 9 Wskaż dla każdego departamentu (podaj nazwę i lokalizację) nazwiska i daty
+-- zatrudnienia pracowników ostatnio zatrudnionych. Wynikowe rekordy uporządkuj
+-- malejąco według dat zatrudnienia.
+
+select d.dname, d.loc, e.ename, e.hiredate
+from dept d
+         join emp e on d.deptno = e.deptno
+where e.hiredate in (select max(hiredate) from emp where e.deptno = d.deptno group by deptno);
+
+-- 10 Podaj nazwisko, pensję i nazwę departamentu pracowników, których płaca przekracza
+-- średnią ich grup zarobkowych.
+
+select ename, sal, grade, d.dname
+from emp e
+         join salgrade s on e.sal between s.losal and s.hisal
+         join dept d on e.deptno = d.deptno
+where e.sal > (select avg(sal) from emp where emp.sal between s.losal and s.hisal);
+
+-- 11 Stosując podzapytanie znajdź nazwiska pracowników przypisanych do nieistniejących
+-- departamentów.
+
+select ename
+from emp e
+where not exists(select * from dept where dept.deptno = e.deptno);
